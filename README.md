@@ -5,4 +5,5 @@ This code presents an unsupervised machine learning framework for detecting anom
 - Isolation Forest,
 - One-Class Support Vector Machine (SVM),
 - and DBSCAN clustering.
+
 Results demonstrate that combining multiple models improves detection robustness and highlights high-risk applications exhibiting excessive or sensitive permission usage. The proposed approach provides a scalable and automated mechanism for security teams to prioritize application reviews and reduce attack surfaces.
