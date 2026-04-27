@@ -1,7 +1,7 @@
 import pandas as pd
 
-#df = pd.read_csv(r"C:\Users\Owner\Documents\GitHub Repos\Research\Anonymised Permissions.csv")
-df = pd.read_csv(r"C:\Users\Owner\Documents\GitHub Repos\Research\Permissions_Prod2.csv")
+#df = pd.read_csv("Anonymised Permissions.csv")
+df = pd.read_csv("Permissions_Prod2.csv")
 
 #print(df.head())
 
