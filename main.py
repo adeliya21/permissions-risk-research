@@ -1,6 +1,7 @@
 import pandas as pd
 
-df = pd.read_csv("Anonymised Permissions.csv")
+#df = pd.read_csv(r"C:\Users\Owner\Documents\GitHub Repos\Research\Anonymised Permissions.csv")
+df = pd.read_csv(r"C:\Users\Owner\Documents\GitHub Repos\Research\Permissions_Prod2.csv")
 
 #print(df.head())
 
@@ -94,7 +95,7 @@ features['cluster'] = db.fit_predict(X)
 #print(features.head())
 
 # Step 7: Identifying Suspicious Apps
-'''
+#'''
 anomalies = features[
     (features['isoforest'] == -1) |
     (features['svm'] == -1) |
@@ -102,7 +103,7 @@ anomalies = features[
 ]
 
 #print(anomalies.sort_values(by='high_risk_perms', ascending=False).head(10))
-'''
+#'''
 
 # Step 8: Combine results
 #'''
@@ -115,16 +116,36 @@ features['final_anomaly'] = (
 #'''
 
 # Step 9: Visualization
-# #'''
+#'''
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches  # for legend patches
+import matplotlib.patches as mpatches
 
 algos = ['isoforest', 'svm', 'cluster', 'final_anomaly']
+
+# Define custom legend labels for each algorithm
+legend_labels = {
+    'isoforest': {
+        -1: 'Anomaly',
+         1: 'Normal'
+    },
+    'svm': {
+        -1: 'Anomaly',
+         1: 'Normal'
+    },
+    'cluster': {  # DBSCAN
+        -1: 'Anomaly'  # others will be handled dynamically
+    },
+    'final_anomaly': {
+        0: 'Normal apps',
+        1: 'Low anomaly',
+        2: 'Medium anomaly',
+        3: 'High anomaly'
+    }
+}
 
 for idx, algo in enumerate(algos, start=1):
     plt.figure(figsize=(10,6))
     
-    # Scatter plot colored by the current algorithm/model
     scatter = plt.scatter(
         features['total_perms'], 
         features['high_risk_perms'],
@@ -133,27 +154,60 @@ for idx, algo in enumerate(algos, start=1):
         s=100
     )
     
-    plt.xlabel("Total Permissions")
-    plt.ylabel("High Risk Permissions")
-    plt.title(f"Anomaly Detection of Apps - {algo}")
-    
+    plt.xlabel("Total Permissions", fontsize=14)
+    plt.ylabel("High Risk Permissions", fontsize=14)
+    plt.title(f"Anomaly Detection of Apps - {algo}", fontsize=14)
+
     # Annotate each point with app name
     for i, app_name in enumerate(features.index):
         plt.text(
             features['total_perms'].iloc[i] + 0.1,
             features['high_risk_perms'].iloc[i] + 0.1,
             app_name,
-            fontsize=8
+            fontsize=14
         )
     
-    # Create legend below the plot
+    # Build legend
     unique_values = sorted(features[algo].unique())
-    colors = [scatter.cmap(scatter.norm(val)) for val in unique_values]
-    patches = [mpatches.Patch(color=colors[i], label=str(unique_values[i])) for i in range(len(unique_values))]
+    patches = []
+
+    for val in unique_values:
+        color = scatter.cmap(scatter.norm(val))
+        
+        # Custom labeling logic
+        if algo in ['isoforest', 'svm']:
+            label = legend_labels[algo].get(val, str(val))
+        
+        elif algo == 'cluster':  # DBSCAN
+            if val == -1:
+                label = 'Anomaly'
+            else:
+                label = f'Cluster {val}'
+        
+        elif algo == 'final_anomaly':
+            label = legend_labels[algo].get(val, str(val))
+        
+        else:
+            label = str(val)
+
+        patches.append(mpatches.Patch(color=color, label=label))
     
-    plt.legend(handles=patches, title=f"{algo} value", bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=len(unique_values))
+    plt.legend(
+        handles=patches,
+        title=f"{algo} interpretation",
+        bbox_to_anchor=(0.5, -0.2),
+        loc='upper center',
+        ncol=len(patches),
+        fontsize=14,        # legend labels
+        title_fontsize=14   # legend title
+    )
     
-    # Save the figure
     plt.savefig(f"Figure{idx}_{algo}.png", dpi=300, bbox_inches='tight')
     plt.close()
+#'''
+
+# Step 10: Validation
+#'''
+agreement = features['final_anomaly'].value_counts()
+print(agreement)
 #'''
