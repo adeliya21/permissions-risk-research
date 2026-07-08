@@ -1,7 +1,7 @@
 import pandas as pd
 
-#df = pd.read_csv("Anonymised Permissions.csv")
-df = pd.read_csv("Permissions_Prod2.csv")
+#df = pd.read_csv("./Permissions_Test.csv")
+df = pd.read_csv("./Permissions_Prod.csv")
 
 #print(df.head())
 
@@ -159,13 +159,16 @@ for idx, algo in enumerate(algos, start=1):
     plt.title(f"Anomaly Detection of Apps - {algo}", fontsize=14)
 
     # Annotate each point with app name
-    for i, app_name in enumerate(features.index):
+    '''
+        for i, app_name in enumerate(features.index):
         plt.text(
             features['total_perms'].iloc[i] + 0.1,
             features['high_risk_perms'].iloc[i] + 0.1,
             app_name,
             fontsize=14
         )
+    '''
+
     
     # Build legend
     unique_values = sorted(features[algo].unique())
